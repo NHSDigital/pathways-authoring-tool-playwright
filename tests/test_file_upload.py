@@ -8,7 +8,7 @@ from playwright.sync_api import Page, expect
 
 
 @pytest.mark.parametrize(
-    "file_to_test", ["Regression Test Document.docx", "Regression Test Document.pdf"]
+    "file_to_test", ["regression_test_document.docx", "regression_test_document.pdf"]
 )
 def test_file_type_upload_to_enquiry(page: Page, file_to_test: str) -> None:
     f"""
