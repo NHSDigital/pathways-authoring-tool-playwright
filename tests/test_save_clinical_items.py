@@ -6,8 +6,26 @@ import pytest
 import os
 from playwright.sync_api import Page, expect
 from pages.home_page import HomePage
-from pages.edit_question_page import EditQuestionPage
-from pages.search_question_page import SearchQuestionPage
+from pages.questions.edit_question_page import EditQuestionPage
+from pages.questions.search_questions_page import SearchQuestionsPage
+from pages.care_advice.edit_care_advice_page import EditCareAdvicePage
+from pages.care_advice.search_care_advice_page import SearchCareAdvicePage
+from pages.dispositions.edit_disposition_page import EditDispositionPage
+from pages.dispositions.search_dispositions_page import SearchDispositionsPage
+from pages.pathways.edit_pathway_page import EditPathwayPage
+from pages.pathways.search_pathways_page import SearchPathwaysPage
+from pages.paccs.templates.edit_template_page import EditTemplatePage
+from pages.paccs.templates.search_templates_page import SearchTemplatesPage
+from pages.paccs.conditions.edit_condition_page import EditConditionPage
+from pages.paccs.conditions.search_conditions_page import SearchConditionsPage
+from pages.misc.symptom_group.edit_symptom_group_page import EditSymptomGroupPage
+from pages.misc.symptom_group.search_symptom_groups_page import SearchSymptomGroupsPage
+from pages.misc.symptom_discriminator.edit_symptom_discriminator_page import (
+    EditSymptomDiscriminatorPage,
+)
+from pages.misc.symptom_discriminator.search_symptom_discriminators_page import (
+    SearchSymptomDiscriminatorsPage,
+)
 
 VERSION_NUMBER = "42.2.0"
 
@@ -28,7 +46,7 @@ def test_save_question(page: Page) -> None:
     This test saves a question against a previous release and checks history log to confirm correct release
     """
     HomePage(page).navigate_to_search_questions()
-    SearchQuestionPage(page).search_by_question_id()
+    SearchQuestionsPage(page).search_by_question_id("Tx226532")
     EditQuestionPage(page).save_clinical_content(VERSION_NUMBER)
     EditQuestionPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
@@ -41,16 +59,10 @@ def test_save_care_advice(page: Page) -> None:
     """
     This test saves care advice against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="Care Advice").click()
-    page.get_by_role("link", name="Search").click()
-    page.get_by_label("Care Advice Id").fill("Cx221784")
-    page.get_by_role("button", name=" Search").click()
-    page.get_by_role("cell", name="Cx221784").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option(VERSION_NUMBER)
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_care_advice()
+    SearchCareAdvicePage(page).search_by_care_advice_id("Cx221784")
+    EditCareAdvicePage(page).save_clinical_content(VERSION_NUMBER)
+    EditCareAdvicePage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
         # f"Target {VERSION_NUMBER}(0)"
@@ -61,18 +73,13 @@ def test_save_disposition(page: Page) -> None:
     """
     This test saves a disposition against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="Dispositions").click()
-    page.get_by_role("link", name="Search").click()
-    page.get_by_label("Dispo Id").fill("Dx220235")
-    page.get_by_role("button", name=" Search").click()
-    page.get_by_role("link", name="Dx220235").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_dispositions()
+    SearchDispositionsPage(page).search_by_disposition_id("Dx220235")
+    EditDispositionPage(page).save_clinical_content(VERSION_NUMBER)
+    EditDispositionPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
+        # f"Target {VERSION_NUMBER}(0)"
     )
 
 
@@ -80,16 +87,10 @@ def test_save_pathway(page: Page) -> None:
     """
     This test saves a pathway against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="Pathways").click()
-    page.get_by_role("link", name="Search").click()
-    page.get_by_label("Pathway Id").fill("PW1899")
-    page.get_by_role("button", name=" Search").click()
-    page.get_by_role("link", name="PW1899").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_pathways()
+    SearchPathwaysPage(page).search_by_pathway_id("PW1899")
+    EditPathwayPage(page).save_clinical_content(VERSION_NUMBER)
+    EditPathwayPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
     )
@@ -99,16 +100,10 @@ def test_save_template(page: Page) -> None:
     """
     This test saves a template against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="PaCCS").click()
-    page.get_by_title("Search all PaCCS Templates").click()
-    page.get_by_label("Template Id").fill("Cs000138")
-    page.get_by_role("button", name=" Search").click()
-    page.get_by_role("link", name="Cs000138").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_templates()
+    SearchTemplatesPage(page).search_by_template_id("Cs000138")
+    EditTemplatePage(page).save_clinical_content(VERSION_NUMBER)
+    EditTemplatePage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
     )
@@ -118,16 +113,10 @@ def test_save_condition(page: Page) -> None:
     """
     This test saves a condition against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="PaCCS").click()
-    page.get_by_title("Search all PaCCS Conditions").click()
-    page.get_by_label("Condition Id").fill("Cn010727")
-    page.get_by_role("button", name=" Search").click()
-    page.get_by_role("link", name="Cn010727").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_conditions()
+    SearchConditionsPage(page).search_by_condition_id("Cn010727")
+    EditConditionPage(page).save_clinical_content(VERSION_NUMBER)
+    EditConditionPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
     )
@@ -137,16 +126,10 @@ def test_save_symptom_group(page: Page) -> None:
     """
     This test saves a symptom group against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="Misc").click()
-    page.get_by_title("Search Symptom Groups").click()
-    page.get_by_role("textbox", name="Filter by SG name").fill("SG1272")
-    page.get_by_role("button", name="").click()
-    page.get_by_role("link", name="SG1272").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_symptom_groups()
+    SearchSymptomGroupsPage(page).search_by_symptom_group_id("SG1272")
+    EditSymptomGroupPage(page).save_clinical_content(VERSION_NUMBER)
+    EditSymptomGroupPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
     )
@@ -156,16 +139,10 @@ def test_save_symptom_discriminator(page: Page) -> None:
     """
     This test saves a symptom discriminator against a previous release and checks history log to confirm correct release
     """
-    page.get_by_role("button", name="Misc").click()
-    page.get_by_title("Search Symptom Discriminators").click()
-    page.get_by_role("textbox", name="Filter by SD name").fill("SD4785")
-    page.get_by_role("button", name="").click()
-    page.get_by_role("link", name="SD4785").click()
-    page.locator("#btnPreSave").click()
-    page.get_by_label("Target Release *").select_option("42.2.0")
-    page.get_by_role("textbox", name="Author note").fill("Regression testing")
-    page.get_by_role("button", name="Save Changes").click()
-    page.get_by_role("cell", name="Automated PW Team Member").first.click()
+    HomePage(page).navigate_to_search_symptom_discriminators()
+    SearchSymptomDiscriminatorsPage(page).search_by_symptom_discriminator_id("SD4785")
+    EditSymptomDiscriminatorPage(page).save_clinical_content(VERSION_NUMBER)
+    EditSymptomDiscriminatorPage(page).click_change_history_log()
     expect(page.locator("#tableExpandCollapse")).to_contain_text(
         "Target 61.0.0_Chai(0)"
     )
